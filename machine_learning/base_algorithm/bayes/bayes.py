@@ -56,6 +56,7 @@ def words2Vec(vocabList, inputSet):
         mat 每个条目entry 都是 doc 生成的vocabList，所以长度都已经一样了.
             且变为了 int_vec的类型。
     trainLabels --- 每个条目标签 0 normal 1 abusive(辱骂)
+    P(Y|X) = P(X,Y)/P(Y)
 '''
 def trainNBVecP(trainMatrix, trainLabels):
     numTrainDocs = len(trainMatrix)

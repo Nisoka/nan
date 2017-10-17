@@ -18,7 +18,7 @@ def loadDataSet(fileName):
 
 # sigmoid函数将线性分类 非线性化 1/(1+exp(x))
 def sigmoid(inX):
-    return 1.0/(1 + exp(-inX))
+    return longfloat(1.0/(1 + exp(-inX)))
 
 '''
     梯度下降算法
@@ -34,11 +34,30 @@ def sigmoid(inX):
         4 梯度方向更新weidghts wi = wi + alpha*xi*(y-yHat)
 
 '''
+
+# dataMatIn存放的是3个特征，是100*3的矩阵
+# classLabels存放的是类别标签，是1*100的行向量
+#def gradAscent(dataMatIn,classLabels):
+#    # 转换为NumPy矩阵数据类型
+#    dataMatrix=mat(dataMatIn)
+#    labelMat=mat(classLabels).transpose()
+#    m,n=shape(dataMatrix)
+#    alpha=0.001 # 向目标移动的步长
+#    maxCycles=500 # 迭代次数
+#    weights=ones((n,1))
+#    for k in range(maxCycles):
+#        #　矩阵相乘
+#        h=sigmoid(dataMatrix*weights) # 列向量的元素个数等于样本个数
+#        error=(labelMat-h)
+#        weights=weights+alpha*dataMatrix.transpose()*error
+#    # getA() Return self as an ndarray object.
+#    return weights.getA()
+
 def gradAscent(dataMatIn, labelMatIn, maxIter = 500):
     dataMat = mat(dataMatIn)
     labelMat = mat(labelMatIn).transpose()
     m, n = shape(dataMat)
-    alpha = 0.1
+    alpha = 0.001
     weights = ones( (n, 1) )
 #    print(dataMat)
 #    print(weights)
@@ -133,9 +152,9 @@ def dataSetTest():
     print(errCnt)
     #plotBestFit(dataMat, labelMat, Weights)
 
-    logisReg = cLogisticReg(dataMat, labelMat, 700)
-    Weights = logisReg.train()
-    logisReg.trainErr()
+#    logisReg = cLogisticReg(dataMat, labelMat, 700)
+#    Weights = logisReg.train()
+#    logisReg.trainErr()
     # logisReg.plotTrainResult()
 
 
@@ -183,7 +202,7 @@ def colicTest():
 
 def easyToUse():
     dataSetTest()
-    colicTest()
+#    colicTest()
 
 if __name__ == "__main__":
     easyToUse()

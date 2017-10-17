@@ -9,70 +9,53 @@ import copy
 import re
 
 
-def loadDataT():
-    df=pd.read_csv('TreeData.csv')
 
-    data=df.values[:11,1:].tolist()
-    data_full=data[:]
-    labels=df.columns.values[1:-1].tolist()
-    labels_full=labels[:]
-
-
-
-def loadData():
+def load_data():
     # List Widget class [columns , values]
-    dataSet = pd.read_csv('TreeData.csv')
+    data = pd.read_csv('TreeData.csv')
     #data type: DateFrame
-    dataIn = dataSet.values[:11,1:].tolist()
-    dataTest = dataSet.values[11:, 1:].tolist()
-#    print(np.array(dataIn))
-#    print(np.array(dataTest))
-    labels = dataSet.columns.values[1:].tolist()
-    return dataIn, dataTest, labels
+    data_train = data.values[:11,1:].tolist()
+    data_test = data.values[11:, 1:].tolist()
+
+    #dataSet.columns -- csv标签名(表头)
+    feature_names = data.columns.values[1:].tolist()
+    return data_train, data_test, feature_names
 
 def calGini(dataSet):
-    numEntries = len(dataSet)
+    entry_cnt = len(dataSet)
     # data type: dict
-    classList = {}
+    class_cnt_list = {}
     for entry in dataSet:
         theClass = entry[-1]
-        if theClass not in classList.keys():
-            classList[theClass] = 0
-        classList[theClass] += 1
+        if theClass not in class_cnt_list.keys():
+            class_cnt_list[theClass] = 0
+        class_cnt_list[theClass] += 1
 
+    # GINI = -SUM{prob^2} ???
     Gini = 1.0
-    for key in classList:
-        prob = float(classList[key])/numEntries
+    for key in class_cnt_list:
+        prob = float(class_cnt_list[key])/entry_cnt
         Gini -= prob*prob
     return Gini
 
 def calcEntroy(dataSet):
-    numEntries = len(dataSet)
-    classList = {}
+    entry_cnt = len(dataSet)
+    class_cnt_list = {}
+
     for entry in dataSet:
         theClass = entry[-1]
-#        print(theClass)
-        if theClass not in classList.keys():
-            classList[theClass] = 0
-        classList[theClass] += 1
+        if theClass not in class_cnt_list.keys():
+            class_cnt_list[theClass] = 0
+        class_cnt_list[theClass] += 1
 
     shannonEntroy = 0.0
-    for theClass in classList:
-        prob = float(classList[theClass])/numEntries
+    for theClass in class_cnt_list:
+        prob = float(class_cnt_list[theClass])/entry_cnt
         shannonEntroy -= prob*log(prob)
 
     return shannonEntroy
 
-#def splitDataSet(dataSet,axis,value):
-#    retDataSet=[]
-#    for featVec in dataSet:
-#        if featVec[axis]==value:
-#            reducedFeatVec=featVec[:axis]
-#            reducedFeatVec.extend(featVec[axis+1:])
-#            retDataSet.append(reducedFeatVec)
-#    return retDataSet
-
-def splitDataSet(dataSet, feature, value):
+def extract_data_set(dataSet, feature, value):
     retDataSet = []
     for entry in dataSet:
         if entry[feature] == value:
@@ -81,21 +64,21 @@ def splitDataSet(dataSet, feature, value):
             retDataSet.append(retEntry)
     return retDataSet
 
-# sum probx * Entroy(dataSetChild)
+#conditionEntroy
 def calcConditionEntroy(dataSet, featureIndex):
-    numEntries = len(dataSet)
-    valueList = {}
+    entry_cnt = len(dataSet)
+    value_cnt_list = {}
 
     for entry in dataSet:
         featureValue = entry[featureIndex]
-        if featureValue not in valueList.keys():
-            valueList[featureValue] = 0
-        valueList[featureValue] += 1
+        if featureValue not in value_cnt_list.keys():
+            value_cnt_list[featureValue] = 0
+        value_cnt_list[featureValue] += 1
 
     conditionEntroy = 0.0
-    for featureValue in valueList:
-        probx = float(valueList[featureValue])/numEntries
-        childDataSet = splitDataSet(dataSet, featureIndex,  featureValue)
+    for featureValue in value_cnt_list:
+        probx = float(value_cnt_list[featureValue])/entry_cnt
+        childDataSet = extract_data_set(dataSet, featureIndex,  featureValue)
         conditionEntroy += probx*calcEntroy(childDataSet)
     return conditionEntroy
 
@@ -128,73 +111,74 @@ def majorClass(classList):
     # dict max(dict) 返回 value 最大的 key.
     return max(classCount)
 
-def createTree(dataSet, labels):
+def createTree(dataSet, feature_names):
 
     classList = [entry[-1] for entry in dataSet]
 
+    #only one class leave, reach the end of the tree
     if len(classList) == classList.count(classList[0]):
         return classList[0]
 
+    #only one feature leave, no need to split any more;
     if len(dataSet[0]) == 1:
         return majorClass(classList)
 
-    # 4 theTree{label:{value:childTree,value:childTree}}
+    # 4 theTree{feature: {value:childTree, value:childTree}}
     # 1 select feature
     # 2 feature label
     # 3 feature values
 
     theTree = {}
+    # use entroy to select the best feature
     featureIndex = selectFeature(dataSet)
-    theLabel = labels[featureIndex]
-    theTree[theLabel] = {}
-    featureList = [entry[featureIndex] for entry in dataSet]
+    feature_name = feature_names[featureIndex]
+    theTree[feature_name] = {}
+    feature_value_list = [entry[featureIndex] for entry in dataSet]
 
 
-    childLabels = copy.deepcopy(labels)
-    del(childLabels[featureIndex])
+    childfeature_names = copy.deepcopy(feature_names)
+    del(childfeature_names[featureIndex])
 
-    uniqueFeature = set(featureList)
-    for value in uniqueFeature:
-        childDataSet = splitDataSet(dataSet, featureIndex, value)
-#        print(value)
-#        print(childDataSet)
-#        print()
-        theTree[theLabel][value] = createTree(childDataSet, childLabels)
+    feature_value_set = set(feature_value_list)
+    for value in feature_value_set:
+        childDataSet = extract_data_set(dataSet, featureIndex, value)
+        theTree[feature_name][value] = createTree(childDataSet, childfeature_names)
 
     return theTree
 
-
-
-
 ''' '''
 
-
-
-def classify(inputTree, entry, labels):
+def classify(inputTree, entry, feature_names):
     classK = 0
     feature = list(inputTree.keys())[0]
-    index = labels.index(feature)
+    index = feature_names.index(feature)
+
     for value in inputTree[feature].keys():
         if  value == entry[index]:
             if type(inputTree[feature][value]).__name__ == 'dict':
                 childTree = copy.deepcopy(inputTree[feature][value])
-                classK = classify(childTree, entry, labels)
+                classK = classify(childTree, entry, feature_names)
             else:
                 classK = inputTree[feature][value]
 
     return classK
 
 # 遍历树查找
-#
-def testing(inputTree, dataSet_test, labels):
+def testing(inputTree, dataSet_test, feature_names):
     error = 0
     classK = 0
     for entry in dataSet_test:
-        classK =  classify(inputTree, entry, labels)
+        classK =  classify(inputTree, entry, feature_names)
         if classK != entry[-1]:
             error += 1
         print(classK, entry[-1])
     return error
+
+
+
+
+
+
 
 def majorTest(classMajor, dataSet_test):
     error = 0
@@ -217,25 +201,30 @@ def majorTest(classMajor, dataSet_test):
 # 2 对当前树，进行剪枝判断
 # 3 如果剪枝， 返回表决 类标签classk，否则 返回当前树
 
-def tailorTree(inputTree, dataSet, dataSet_test, labels):
+def tailorTree(inputTree, dataSet, dataSet_test, feature_names):
     classList = [entry[-1] for entry in dataSet]
     feature = list(inputTree.keys())[0]
-#    print(labels)
+#    print(feature_names)
 #    print(feature)
-    index = labels.index(feature)
+
+    #递归剪枝
+    index = feature_names.index(feature)
     for value in inputTree[feature].keys():
         # 深度子树剪枝
         if type(inputTree[feature][value]).__name__ == 'dict':
             childTree = copy.deepcopy(inputTree[feature][value])
-            childDataSet = splitDataSet(dataSet, index, value)
-            childTestDataSet = splitDataSet(dataSet_test, index, value)
-            childLabels = copy.deepcopy(labels)
-#            del(childLabels[index])
-            tailorTree(childTree, childDataSet, childTestDataSet, childLabels)
+            childDataSet = extract_data_set(dataSet, index, value)
+            childTestDataSet = extract_data_set(dataSet_test, index, value)
+            childfeature_names = copy.deepcopy(feature_names)
+#            del(childfeature_names[index])
+            tailorTree(childTree, childDataSet, childTestDataSet, childfeature_names)
 
-    error = testing(inputTree, dataSet_test, labels)
+    #使用子树进行测试错误率
+    error = testing(inputTree, dataSet_test, feature_names)
+    #使用majorclass 作为子数据集的class 计算错误率
     classMajor = majorClass(classList)
     errorMajor = majorTest(classMajor, dataSet_test)
+
     print("ERROR", error, errorMajor)
     if error >= errorMajor:
         print("tailor ")
@@ -244,18 +233,18 @@ def tailorTree(inputTree, dataSet, dataSet_test, labels):
 
 
 def main():
-    dataSet, dataSet_test, labels = loadData()
-    myTree = createTree(dataSet, labels)
-    testing(myTree, dataSet_test, labels)
+    dataSet, dataSet_test, feature_names = loadData()
+    myTree = createTree(dataSet, feature_names)
+    testing(myTree, dataSet_test, feature_names)
 #    for entry in dataSet:
 #        print(entry)
-#        print(classify(myTree, entry, labels))
+#        print(classify(myTree, entry, feature_names))
 
     print()
     print(myTree)
-    resultTree = tailorTree(myTree, dataSet, dataSet_test, labels)
+    resultTree = tailorTree(myTree, dataSet, dataSet_test, feature_names)
     print("after tailor =----------------")
-    testing(resultTree, dataSet_test, labels)
+    testing(resultTree, dataSet_test, feature_names)
     print(resultTree)
 
 

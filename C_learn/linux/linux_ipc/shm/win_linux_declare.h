@@ -1,0 +1,4 @@
+#ifndef WIN_LINUX_DECLARE_H
+#define WIN_LINUX_DECLARE_H
+
+#endif // WIN_LINUX_DECLARE_H

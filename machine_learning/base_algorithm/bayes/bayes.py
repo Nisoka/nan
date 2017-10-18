@@ -254,8 +254,8 @@ def spamTest():
 
 
 def easyToUse():
-    # testingNB()
-    spamTest()
+    testingNB()
+    #spamTest()
 
 if __name__ == "__main__":
     easyToUse()

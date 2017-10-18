@@ -125,7 +125,7 @@ class cLogisticReg:
             if result != self.data_y[i]:
                 print(result, self.data_y[i])
                 errCnt += 1
-#        print(errCnt, self.m)
+        print(errCnt, self.m)
         return errCnt/float(self.m)
 
     def plotTrainResult(self):
@@ -202,7 +202,7 @@ def colicTest():
 
 def easyToUse():
     dataSetTest()
-#    colicTest()
+    colicTest()
 
 if __name__ == "__main__":
     easyToUse()

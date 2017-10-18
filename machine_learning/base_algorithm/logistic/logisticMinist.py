@@ -8,7 +8,6 @@ Created on Tue May 16 21:25:15 2017
 import time
 import math
 import random
-
 import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import accuracy_score

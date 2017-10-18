@@ -1,0 +1,135 @@
+;; .emacs
+
+(custom-set-variables
+ ;; uncomment to always end a file with a newline
+ ;'(require-final-newline t)
+ ;; uncomment to disable loading of "default.el" at startup
+ ;'(inhibit-default-init t)
+ ;; default to unified diffs
+ '(diff-switches "-u"))
+
+;;; uncomment for CJK utf-8 support for non-Asian users
+;; (require 'un-define)
+
+
+
+
+
+
+
+
+;; my package-install  		       
+; tsinghua src.
+(require 'package)
+(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+(package-initialize) ;; You might already have this line
+
+; cursor
+;(require 'cursor-chg)
+;(cursor-change-mode 1)
+
+;; window active M-1 2...
+(require 'window-numbering)
+(window-numbering-mode 1)
+
+; auto-complete
+(ac-config-default)
+
+;; xcscope  C-c s
+(require 'xcscope)
+(cscope-setup)
+;(add-hook 'c-mode-common-hook '(lambda() (require 'xcscope)))
+
+
+; auto-complete-clang plugin
+(require 'auto-complete-clang)
+;(setq ac-auto-start nil)
+;(setq ac-quick-help-delay 0.5)
+; use auto-complete-clang plugin as the auto-complete's base.
+;(define-key ac-mode-map [(control tab)] 'auto-complete)
+
+; yasnippet
+(require 'yasnippet)
+(yas-global-mode 1)
+
+;; linum
+(global-linum-mode 1) ; always show line numbers
+(setq linum-format "%d| ")  ;set format
+
+; 
+(require 'electric-case)
+
+;auto enable a mode
+(electric-pair-mode 1)
+
+; ace-jum very quick mode.
+(autoload
+  'ace-jump-mode
+  "ace-jump-mode" t)
+(eval-after-load "ace-jump-mode"
+  '(ace-jump-mode-enable-mark-sync))
+
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+
+;;  meta + ;  comment 注释
+(defun qiang-comment-dwim-line (&optional arg)  
+  (interactive "*P")  
+  (comment-normalize-vars)  
+  (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))  
+      (comment-or-uncomment-region (line-beginning-position) (line-end-position))  
+    (comment-dwim arg)))  
+(global-set-key "\M-;" 'qiang-comment-dwim-line)  
+
+;;撤消  
+(global-set-key (kbd "C-z") 'undo)  
+;;全选  
+(global-set-key (kbd "C-a") 'mark-whole-buffer)  
+;;保存  
+;(global-set-key (kbd "C-s") 'save-buffer)  
+  
+;;跳转到某行  
+(global-set-key [(meta g)] 'goto-line)  
+;;Tab补全或缩进  
+;(global-set-key [(tab)] 'my-indent-or-complete)  
+
+;;chinese
+(add-to-list 'load-path "~/.emacs.d/plugins/emacs-eim-master")
+(autoload 'eim-use-package "eim" "Another emacs input method")
+; nil if you use windows.
+(setq eim-use-tooltip nil)
+
+(register-input-method
+ "eim-wb" "euc-cn" 'eim-use-package
+ "五笔" "汉字五笔输入法" "wb.txt")
+(register-input-method
+ "eim-py" "euc-cn" 'eim-use-package
+ "拼音" "汉字拼音输入法" "py.txt")
+
+;; 用 ; 暂时输入英文
+(require 'eim-extra)
+;; ctrl ; 切换输入法 ok 貌似 Ctrl 也是 切换输入法 
+(global-set-key (kbd "C-;") 'set-input-mode)
+(global-set-key (kbd "C-;") 'toggle-input-method)
+
+;; 不用 TAB 来缩进，只用空格。
+(setq-default indent-tabs-mode nil)
+(setq default-tab-width 4)
+(setq tab-stop-list nil)
+
+;; 显示括号匹配, 而不是匹配后短暂的跳到另一个括号
+(show-paren-mode t)
+(setq show-paren-style 'parentheses)
+
+;; 不要问 yes-or-no，只问 y-or-n
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; 不要 C-x C-c 就退出。确定了才退出。
+(setq kill-emacs-query-functions
+      (lambda ()
+        (y-or-n-p "Do you really want to quit? ")))
+
+;; 默认目录
+(setq default-directory "~/learn/")
+

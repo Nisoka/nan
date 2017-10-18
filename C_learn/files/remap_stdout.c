@@ -1,5 +1,20 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/fcntl.h>
+#include <fcntl.h>
+
 int save_fd;
 int log_fd;
+
+#ifndef USE_MY_PRINTF
+#define printf app_printf
+int app_printf(const char *, ...)
+{
+//    直接将printf 输出到任意文件.
+    return 0;
+}
+#endif
 
 void remap_stdout_log(){
     QDate cur_date = QDate::currentDate();
@@ -21,4 +36,12 @@ void remap_stdout_log(){
     //dup2 替换文件句柄
     dup2(log_fd, STDOUT_FILENO);
     printf("remap_stdout_log >>> logfile\n");
+}
+
+int main(int argc, char* argv[]){
+    //将printf 直接重定向到某个文件.
+    remap_stdout_log();
+
+    printf("");
+
 }

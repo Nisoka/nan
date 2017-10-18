@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rc/limitLine.png</file>
+    </qresource>
+</RCC>

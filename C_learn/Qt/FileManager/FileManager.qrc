@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rc/image/disk.png</file>
+        <file>rc/image/file.png</file>
+        <file>rc/image/Folder.png</file>
+        <file>rc/image/up.png</file>
+        <file>rc/image/newfolder.png</file>
+        <file>rc/image/copy.png</file>
+        <file>rc/image/scissors.png</file>
+        <file>rc/image/paste.png</file>
+        <file>rc/image/rename.png</file>
+        <file>rc/image/del.png</file>
+        <file>rc/image/loading.gif</file>
+        <file>rc/image/close.png</file>
+        <file>rc/image/icon.png</file>
+        <file>rc/image/selectall.png</file>
+        <file>rc/image/open.png</file>
+    </qresource>
+</RCC>

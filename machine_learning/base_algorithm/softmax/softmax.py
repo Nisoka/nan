@@ -8,11 +8,20 @@ import numpy as np
 #dataSet, labels = load_mnist.loadDataSet("trainingDigits")
 #print(labels)
 
-def softMax(vec):
-    vec = vec - np.max(vec, axis = 0)
-    expVec = np.exp(vec)
-    softMaxVec = expVec/np.max(expVec, axis = 0)
-    return softMaxVec
+def softMax(y_vec):
+    #(1, k) = (1, n) * (n, k)
+    exp_y = np.exp(y_vec)
+    pro_vec = exp_y/np.sum(exp_y, axis = 0)
+    #print("softmax : ", pro_vec)
+    return pro_vec
+
+#def softMax(vec):
+#    #vec = x*w = (1, k)
+#    vec = vec - np.max(vec, axis = 0)
+#    # (1, k)
+#    expVec = np.exp(vec)
+#    softMaxVec = expVec/np.sum(expVec, axis = 0)
+#    return softMaxVec
 
 def one_hot(labels, labelsCnt):
     oneHotMat = np.zeros((len(labels), labelsCnt))
@@ -26,7 +35,7 @@ class cSoftMax():
         self.n = dataMat.shape[1]
         self.dataMat = np.concatenate([np.ones((dataMat.shape[0], 1)), dataMat], axis=1)
         self.labelMat = one_hot(labels, 10)
-        self.alpha = 0.01
+        self.alpha = 0.00001
         self.theta = np.ones( (10, self.n+1) )
 
     def probability(self, entry):
@@ -55,6 +64,7 @@ class cSoftMax():
 #            print(deltaMat)
 #            print(deltaMat.shape)
             self.theta -= self.alpha*deltaMat
+            print(self.theta)
             iter += 1
 
 #        print(self.theta)
@@ -74,10 +84,10 @@ class cSoftMax():
 
 
 def main():
-    dataSet, labels = load_mnist.loadDataSet("trainingDigits")
+    dataSet, labels = load_mnist.loadDataSet("../datas/digits/trainingDigits")
     sf = cSoftMax(np.mat(dataSet), labels)
     sf.train()
-    dataSet, labels = load_mnist.loadDataSet("testDigits")
+    dataSet, labels = load_mnist.loadDataSet("../datas/digits/testDigits")
     sf.test(np.mat(dataSet), labels)
 
 
